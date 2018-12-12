@@ -144,8 +144,8 @@ class ChronosJobRunner(AsynchronousJobRunner):
         self.monitor_queue.put(ajs)
 
     @handle_exception_call
-    def stop_job(self, job):
-        job_id = job.get_id_tag()
+    def stop_job(self, job_wrapper):
+        job_id = job_wrapper.get_id_tag()
         job_name = self.JOB_NAME_PREFIX + job_id
         job = self._retrieve_job(job_name)
         if job:

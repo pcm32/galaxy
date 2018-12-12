@@ -107,6 +107,7 @@ MODEL_TOOLS_PATH = os.path.abspath(os.path.dirname(__file__))
 # Tools that require Galaxy's Python environment to be preserved.
 GALAXY_LIB_TOOLS_UNVERSIONED = [
     "upload1",
+    "send_to_cloud",
     "__DATA_FETCH__",
     # Legacy tools bundled with Galaxy.
     "vcf_to_maf_customtrack1",
@@ -138,6 +139,7 @@ GALAXY_LIB_TOOLS_UNVERSIONED = [
     "CONVERTER_maf_to_fasta_0",
     "CONVERTER_maf_to_interval_0",
     "CONVERTER_wiggle_to_interval_0",
+    "CONVERTER_tar_to_directory",
     # Tools improperly migrated to the tool shed (devteam)
     "qualityFilter",
     "winSplitter",
@@ -893,11 +895,6 @@ class Tool(Dictifiable):
 
     def tool_provided_metadata(self, job_wrapper):
         meta_file = os.path.join(job_wrapper.tool_working_directory, self.provided_metadata_file)
-        # LEGACY: Remove in 17.XX
-        if not os.path.exists(meta_file):
-            # Maybe this is a legacy job, use the job working directory instead
-            meta_file = os.path.join(job_wrapper.working_directory, self.provided_metadata_file)
-
         if not os.path.exists(meta_file):
             return output_collect.NullToolProvidedMetadata()
         if self.provided_metadata_style == "legacy":
@@ -1535,7 +1532,7 @@ class Tool(Dictifiable):
             if not error:
                 value, error = check_param(request_context, input, value, context)
             if error:
-                if update_values:
+                if update_values and not hasattr(input, 'data_ref'):
                     try:
                         previous_value = value
                         value = input.get_initial_value(request_context, context)
