@@ -48,6 +48,7 @@ class KubernetesJobRunner(AsynchronousJobRunner):
             k8s_config_path=dict(map=str, default=os.environ.get('KUBECONFIG', None)),
             k8s_use_service_account=dict(map=bool, default=False),
             k8s_persistent_volume_claims=dict(map=str),
+            k8s_persistent_volume_claims_subpaths=dict(map=str),
             k8s_namespace=dict(map=str, default="default"),
             k8s_galaxy_instance_id=dict(map=str),
             k8s_timeout_seconds_job_deletion=dict(map=int, valid=lambda x: int > 0, default=30),
@@ -88,7 +89,14 @@ class KubernetesJobRunner(AsynchronousJobRunner):
         mountable_volumes = [{'name': claim_name, 'persistentVolumeClaim': {'claimName': claim_name}} for claim_name in volume_claims]
         self.runner_params['k8s_mountable_volumes'] = mountable_volumes
         volume_mounts = [{'name': claim_name, 'mountPath': mount_path} for claim_name, mount_path in volume_claims.items()]
+        # add subPath support for jobs
+        sub_paths = dict(
+            sub_path.split(":") for sub_path in self.runner_params['k8s_persistent_volume_claims_subpaths'].split(','))
+        for mount in volume_mounts:
+            if mount['name'] in sub_paths:
+                mount['subPath'] = sub_paths[mount['name']]
         self.runner_params['k8s_volume_mounts'] = volume_mounts
+
 
     def queue_job(self, job_wrapper):
         """Create job script and submit it to Kubernetes cluster"""

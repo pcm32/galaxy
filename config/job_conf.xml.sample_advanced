@@ -198,6 +198,13 @@
                  Typical mount paths are the file_path, job_working_directory, all paths containing tools and scripts
                  and all library paths set in galaxy.yml (or equivalent general galaxy config file). -->
 
+            <!-- <param id="k8s_persistent_volume_claims_subpaths">galaxy_pvc1:sub_path_mount1,galaxy_pvc2:sub_path/mount2</param> -->
+            <!-- Comma separated list of subPaths to use for persistence volume claims. This is entirely optional, and
+                 is meant for when you need to use multiple PVs pointing to the same physical volume but in different
+                 locations (for instance when you have an NFS volume being accessed by multiple PVs to serve multiple
+                 PVCs). This is used for setting the jobs PVC, Galaxy needs to be configured upstream accordingly, most
+                 probably at the Helm chart level, but that will change from setup to setup. -->
+
             <!-- <param id="k8s_namespace">default</param> -->
             <!-- The namespace to be used on the Kubernetes cluster, if different from default, this needs to be set
                  accordingly in the PV and PVC detailed above -->
